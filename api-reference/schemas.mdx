@@ -1,0 +1,50 @@
+---
+title: 'Schemas'
+description: 'Data models used across the API'
+---
+
+The following objects are referenced by the endpoints. Refer to field descriptions and example payloads when building against the API.
+
+## Plant
+
+Represents a plant in the store.
+
+```json
+{
+  "name": "Fiddle Leaf Fig",
+  "tag": "indoor"
+}
+```
+
+- **name** (string, required): The name of the plant
+- **tag** (string, optional): Tag to specify the type
+
+## NewPlant
+
+Extends `Plant` with an `id` field when creating a new plant.
+
+```json
+{
+  "id": 12345,
+  "name": "Monstera Deliciosa",
+  "tag": "indoor"
+}
+```
+
+- **id** (integer, required): Identification number of the plant
+- Inherits all fields from `Plant`
+
+## Error
+
+Represents an error response from the API.
+
+```json
+{
+  "error": 400,
+  "message": "Invalid query parameter 'limit'"
+}
+```
+
+- **error** (integer): Error code
+- **message** (string): Human-readable description of the error
+

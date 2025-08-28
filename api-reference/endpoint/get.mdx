@@ -2,3 +2,92 @@
 title: 'Get Plants'
 openapi: 'GET /plants'
 ---
+
+Retrieve the list of plants accessible to the authenticated user. Supports limiting the number of returned results via a `limit` query parameter.
+
+## Authentication
+
+This endpoint requires a Bearer token. Include an `Authorization` header:
+
+```http
+Authorization: Bearer <YOUR_TOKEN>
+```
+
+## Query parameters
+
+- **limit** (integer, optional): The maximum number of results to return.
+
+## Responses
+
+- **200**: Returns an array of `Plant` objects
+- **400**: Returns an `Error` object describing the issue
+
+## Examples
+
+### cURL
+
+```bash
+curl -X GET "http://sandbox.mintlify.com/plants?limit=2" \
+  -H "Authorization: Bearer $API_TOKEN" \
+  -H "Accept: application/json"
+```
+
+Example successful response (200):
+
+```json
+[
+  { "name": "Fiddle Leaf Fig", "tag": "indoor" },
+  { "name": "Snake Plant", "tag": "succulent" }
+]
+```
+
+Example error response (400):
+
+```json
+{ "error": 400, "message": "Invalid query parameter 'limit'" }
+```
+
+### JavaScript (fetch)
+
+```javascript
+const token = process.env.API_TOKEN;
+
+async function getPlants(limit = 25) {
+  const url = new URL("http://sandbox.mintlify.com/plants");
+  if (limit) url.searchParams.set("limit", String(limit));
+
+  const res = await fetch(url.toString(), {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      Accept: "application/json",
+    },
+  });
+
+  if (!res.ok) {
+    const err = await res.json();
+    throw new Error(`${err.error}: ${err.message}`);
+  }
+
+  return res.json();
+}
+
+getPlants(2).then(console.log).catch(console.error);
+```
+
+### Python (requests)
+
+```python
+import os
+import requests
+
+token = os.getenv("API_TOKEN")
+params = {"limit": 2}
+headers = {"Authorization": f"Bearer {token}", "Accept": "application/json"}
+
+resp = requests.get("http://sandbox.mintlify.com/plants", params=params, headers=headers)
+if resp.status_code != 200:
+    print(resp.json())
+    resp.raise_for_status()
+
+print(resp.json())
+```
