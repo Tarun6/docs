@@ -2,3 +2,102 @@
 title: 'Create Plant'
 openapi: 'POST /plants'
 ---
+
+Create a new plant in the store. Provide the plant details in the JSON request body.
+
+## Authentication
+
+Include a Bearer token in the `Authorization` header.
+
+## Request body
+
+Content type: `application/json`
+
+Schema: `NewPlant` (extends `Plant`), with the following fields:
+
+- **id** (integer, required): Identification number of the plant
+- **name** (string, required): The name of the plant
+- **tag** (string, optional): Tag to specify the type
+
+Example request body:
+
+```json
+{
+  "id": 12345,
+  "name": "Monstera Deliciosa",
+  "tag": "indoor"
+}
+```
+
+## Responses
+
+- **200**: Returns the created `Plant`
+- **400**: Returns an `Error` object describing the issue
+
+## Examples
+
+### cURL
+
+```bash
+curl -X POST "http://sandbox.mintlify.com/plants" \
+  -H "Authorization: Bearer $API_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "id": 12345,
+    "name": "Monstera Deliciosa",
+    "tag": "indoor"
+  }'
+```
+
+Example successful response (200):
+
+```json
+{ "name": "Monstera Deliciosa", "tag": "indoor" }
+```
+
+### JavaScript (fetch)
+
+```javascript
+const token = process.env.API_TOKEN;
+
+async function createPlant(plant) {
+  const res = await fetch("http://sandbox.mintlify.com/plants", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+      Accept: "application/json",
+    },
+    body: JSON.stringify(plant),
+  });
+
+  if (!res.ok) {
+    const err = await res.json();
+    throw new Error(`${err.error}: ${err.message}`);
+  }
+
+  return res.json();
+}
+
+createPlant({ id: 12345, name: "Monstera Deliciosa", tag: "indoor" })
+  .then(console.log)
+  .catch(console.error);
+```
+
+### Python (requests)
+
+```python
+import os
+import requests
+
+token = os.getenv("API_TOKEN")
+headers = {"Authorization": f"Bearer {token}", "Content-Type": "application/json", "Accept": "application/json"}
+data = {"id": 12345, "name": "Monstera Deliciosa", "tag": "indoor"}
+
+resp = requests.post("http://sandbox.mintlify.com/plants", json=data, headers=headers)
+if resp.status_code != 200:
+    print(resp.json())
+    resp.raise_for_status()
+
+print(resp.json())
+```

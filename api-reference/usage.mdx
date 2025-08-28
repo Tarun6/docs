@@ -1,0 +1,116 @@
+---
+title: 'API Usage & Authentication'
+description: 'How to authenticate and call the API with practical examples'
+---
+
+This guide shows how to authenticate with a Bearer token and call the API using cURL, JavaScript, and Python.
+
+## Base URL
+
+All examples use the sandbox server from the spec: `http://sandbox.mintlify.com`.
+
+## Authentication
+
+Provide your API token via the `Authorization` header using the Bearer scheme.
+
+```http
+Authorization: Bearer <YOUR_TOKEN>
+```
+
+Set an environment variable for convenience:
+
+```bash
+export API_TOKEN=sk_live_xxx
+```
+
+## cURL
+
+List plants:
+
+```bash
+curl -X GET "http://sandbox.mintlify.com/plants?limit=5" \
+  -H "Authorization: Bearer $API_TOKEN" \
+  -H "Accept: application/json"
+```
+
+Create a plant:
+
+```bash
+curl -X POST "http://sandbox.mintlify.com/plants" \
+  -H "Authorization: Bearer $API_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "id": 9001,
+    "name": "ZZ Plant",
+    "tag": "indoor"
+  }'
+```
+
+Delete a plant:
+
+```bash
+curl -X DELETE "http://sandbox.mintlify.com/plants/9001" \
+  -H "Authorization: Bearer $API_TOKEN"
+```
+
+## JavaScript
+
+```javascript
+const BASE_URL = "http://sandbox.mintlify.com";
+const token = process.env.API_TOKEN;
+
+async function request(path, options = {}) {
+  const res = await fetch(`${BASE_URL}${path}`, {
+    ...options,
+    headers: {
+      Authorization: `Bearer ${token}`,
+      Accept: "application/json",
+      "Content-Type": "application/json",
+      ...(options.headers || {}),
+    },
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ message: res.statusText }));
+    throw new Error(`${res.status}: ${err.message}`);
+  }
+  return res.status === 204 ? null : res.json();
+}
+
+export async function listPlants(limit = 10) {
+  const params = new URLSearchParams({ limit: String(limit) });
+  return request(`/plants?${params.toString()}`);
+}
+
+export async function createPlant(plant) {
+  return request(`/plants`, { method: "POST", body: JSON.stringify(plant) });
+}
+
+export async function deletePlant(id) {
+  return request(`/plants/${id}`, { method: "DELETE" });
+}
+```
+
+## Python
+
+```python
+import os
+import requests
+
+BASE_URL = "http://sandbox.mintlify.com"
+TOKEN = os.getenv("API_TOKEN")
+HEADERS = {"Authorization": f"Bearer {TOKEN}", "Accept": "application/json"}
+
+def list_plants(limit: int = 10):
+    return requests.get(f"{BASE_URL}/plants", params={"limit": limit}, headers=HEADERS)
+
+def create_plant(plant: dict):
+    headers = {**HEADERS, "Content-Type": "application/json"}
+    return requests.post(f"{BASE_URL}/plants", json=plant, headers=headers)
+
+def delete_plant(plant_id: int):
+    return requests.delete(f"{BASE_URL}/plants/{plant_id}", headers=HEADERS)
+
+if __name__ == "__main__":
+    print(list_plants(3).json())
+```
+
